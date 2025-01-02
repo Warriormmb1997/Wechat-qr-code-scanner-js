@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Dynamsoft Camera Enhancer + OpenCV - Continuous QR</title>
+
+    <!-- Dynamsoft Core & Camera Enhancer v4.0.2 -->
+    <script src="https://cdn.jsdelivr.net/npm/dynamsoft-core@3.0.30/dist/core.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dynamsoft-camera-enhancer@4.0.2/dist/dce.js"></script>
+
+    <!-- The OpenCV QR detection script (your custom build) -->
+    <script src="dist/OpencvQr.js"></script>
+
+    <style>
+      #div-ui-container {
+        width: 480px;
+        height: 360px;
+        border: 1px solid #ccc;
+        margin-bottom: 1rem;
+      }
+      #canvasInput {
+        width: 400px;
+        border: 1px solid #ccc;
+        margin-top: 1rem;
+      }
+      #imageWrap img {
+        margin: 10px 16px;
+        max-width: 120px;
+        max-height: 120px;
+        object-fit: contain;
+      }
+      button {
+        margin-right: 0.5rem;
+        margin-top: 0.5rem;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Dynamsoft Camera Enhancer + OpenCV - Continuous QR Demo</h1>
+
+    <!-- Buttons for controlling camera -->
+    <button id="btn-open-camera">Open Camera</button>
+    <button id="btn-close-camera">Close Camera</button>
+    <button id="btn-set-region">Set Region</button>
+    <button id="btn-start-scan">Start Scanning</button>
+
+    <!-- Dynamsoft Camera UI Container -->
+    <div id="div-ui-container"></div>
+
+    <!-- Hidden canvas (for optional single-snap usage) -->
+    <canvas id="canvasInput"></canvas>
+    
+    <div id="status-wrap">
+      <strong>Decode Result:</strong> <span id="status"></span>
+    </div>
+
+    <!-- Sub-images from recognized QR codes -->
+    <div id="imageWrap"></div>
+
+    <hr/>
+
+    <!-- For testing static image file uploads (optional) -->
+    <input type="file" id="fileInput" accept="image/*"/>
+
+    <script>
+      /*************************************************************
+       * Step A: Initialize the CameraEnhancer & CameraView
+       *************************************************************/
+      let cameraView, cameraEnhancer;
+      let scanning = false; // scanning loop control
+
+      (async () => {
+        // 1. Create the CameraView instance
+        cameraView = await Dynamsoft.DCE.CameraView.createInstance("http://localhost:8080/dce.ui.html");
+        // 2. Append the CameraView’s UI to our container
+        document
+          .getElementById("div-ui-container")
+          .appendChild(cameraView.getUIElement());
+        // 3. Create the CameraEnhancer instance, pass cameraView to manage UI
+        cameraEnhancer = await Dynamsoft.DCE.CameraEnhancer.createInstance(
+          cameraView
+        );
+      })();
+
+      /*************************************************************
+       * Buttons: open, close camera, set region
+       *************************************************************/
+      // Open camera
+      document.querySelector("#btn-open-camera").onclick = async () => {
+        if (!cameraEnhancer) return;
+        await cameraEnhancer.open(true);
+      };
+
+      // Close camera
+      document.querySelector("#btn-close-camera").onclick = async () => {
+        if (!cameraEnhancer) return;
+        await cameraEnhancer.close();
+      };
+
+      // Set region on the camera view
+      document.querySelector("#btn-set-region").onclick = async () => {
+        if (!cameraEnhancer) return;
+        // Show region mask
+        cameraView.setScanRegionMaskVisible(true);
+        cameraView.setScanLaserVisible(false);
+
+        // 25% from left, 25% from top, 50% width, 50% height
+        cameraEnhancer.setScanRegion({
+          x: 25,
+          y: 25,
+          width: 50,
+          height: 50,
+          isMeasuredInPercentage: true,
+        });
+      };
+
+      /*************************************************************
+       * Step B: Set up the OpenCV QR library
+       *************************************************************/
+      const cvQr = new OpencvQr({
+        // Paths to your .caffemodel files:
+        dw: "https://warriormmb1997.github.io/opencv-js-qrcode_testing/models/detect.caffemodel",
+        sw: "https://warriormmb1997.github.io/opencv-js-qrcode_testing/models/sr.caffemodel",
+      });
+
+      /*************************************************************
+       * Step C: Start continuous scanning
+       *************************************************************/
+      document.getElementById("btn-start-scan").addEventListener("click", () => {
+        if (!cameraEnhancer) return;
+        scanning = true;
+        scanLoop();
+        document.getElementById("status").innerText = "Scanning...";
+      });
+
+      async function scanLoop() {
+        if (!scanning) return;
+
+        // 1. Fetch the frame from CameraEnhancer
+        const dceFrame = cameraEnhancer.fetchImage();
+        if (dceFrame) {
+          // 2. Convert it to a canvas
+          const frameCanvas = dceFrame.toCanvas();
+          if (frameCanvas) {
+            // 3. Run OpenCV detection
+            const result = cvQr.load(frameCanvas);
+            const infos = result?.getInfos() || [];
+
+            if (infos.length > 0) {
+              scanning = false; // Stop scanning once a code is found
+              document.getElementById("status").innerText = JSON.stringify(infos);
+
+              // Clear old images
+              document.getElementById("imageWrap").innerHTML = "";
+              // Display recognized sub-images
+              const images = result.getImages();
+              images?.forEach((imgData) => {
+                const image = imagedataToImage(imgData);
+                document.getElementById("imageWrap").append(image);
+              });
+            } else {
+              // If none found, keep scanning
+              requestAnimationFrame(scanLoop);
+            }
+          } else {
+            // If somehow canvas is not created
+            requestAnimationFrame(scanLoop);
+          }
+        } else {
+          // If no frame is returned, keep scanning
+          requestAnimationFrame(scanLoop);
+        }
+      }
+
+      /*************************************************************
+       * Helper: Convert ImageData to <img>
+       *************************************************************/
+      function imagedataToImage(imagedata) {
+        const c = document.createElement("canvas");
+        const cctx = c.getContext("2d");
+        c.width = imagedata.width;
+        c.height = imagedata.height;
+        cctx.putImageData(imagedata, 0, 0);
+
+        const image = new Image();
+        image.src = c.toDataURL();
+        return image;
+      }
+
+      /*************************************************************
+       * Step D: (Optional) Handle file uploads for local testing
+       *************************************************************/
+      const fileInputElement = document.getElementById("fileInput");
+      fileInputElement?.addEventListener("change", (e) => {
+        const file = e.target.files[0];
+        const qrcodeUrl = URL.createObjectURL(file);
+        loadImageToCanvas(qrcodeUrl, "canvasInput");
+      });
+
+      function loadImageToCanvas(url, canvasId) {
+        const canvas = document.getElementById(canvasId);
+        const ctx = canvas.getContext("2d");
+        const img = new Image();
+        img.crossOrigin = "anonymous";
+        img.onload = function () {
+          canvas.width = img.width;
+          canvas.height = img.height;
+          ctx.drawImage(img, 0, 0, img.width, img.height);
+        };
+        img.src = url;
+      }
+    </script>
+  </body>
+</html>
