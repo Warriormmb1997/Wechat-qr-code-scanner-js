@@ -12,17 +12,20 @@
     <script src="dist/OpencvQr.js"></script>
 
     <style>
+      /* Container for the camera UI */
       #div-ui-container {
         width: 480px;
         height: 360px;
         border: 1px solid #ccc;
         margin-bottom: 1rem;
       }
+      /* Canvas for optional single-snap usage */
       #canvasInput {
         width: 400px;
         border: 1px solid #ccc;
         margin-top: 1rem;
       }
+      /* Display recognized QR sub-images */
       #imageWrap img {
         margin: 10px 16px;
         max-width: 120px;
@@ -71,7 +74,9 @@
 
       (async () => {
         // 1. Create the CameraView instance
-        cameraView = await Dynamsoft.DCE.CameraView.createInstance("http://localhost:8080/dce.ui.html");
+        cameraView = await Dynamsoft.DCE.CameraView.createInstance(
+          "https://warriormmb1997.github.io/Wechat-qr-code-scanner-js/dce.ui.html"
+        );
         // 2. Append the CameraView’s UI to our container
         document
           .getElementById("div-ui-container")
@@ -85,10 +90,19 @@
       /*************************************************************
        * Buttons: open, close camera, set region
        *************************************************************/
-      // Open camera
+      // Open camera + set default 3x zoom
       document.querySelector("#btn-open-camera").onclick = async () => {
         if (!cameraEnhancer) return;
+        // 1. Open the camera
         await cameraEnhancer.open(true);
+
+        // 2. Try setting 3x zoom after opening the camera
+        try {
+          await cameraEnhancer.setZoom({ factor: 3 });
+          console.log("Zoom set to 3x.");
+        } catch (err) {
+          console.error("Unable to set 3x zoom:", err);
+        }
       };
 
       // Close camera
@@ -119,8 +133,8 @@
        *************************************************************/
       const cvQr = new OpencvQr({
         // Paths to your .caffemodel files:
-        dw: "https://warriormmb1997.github.io/opencv-js-qrcode_testing/models/detect.caffemodel",
-        sw: "https://warriormmb1997.github.io/opencv-js-qrcode_testing/models/sr.caffemodel",
+        dw: "https://warriormmb1997.github.io/Wechat-qr-code-scanner-js/models/detect.caffemodel",
+        sw: "https://warriormmb1997.github.io/Wechat-qr-code-scanner-js/models/sr.caffemodel",
       });
 
       /*************************************************************
