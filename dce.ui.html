@@ -1,56 +1,300 @@
-<!-- dce.ui.html -->
+<!-- my-custom-dce.ui.html -->
 <template>
-	<div style="position:relative;width:100%;height:100%;min-width:100px;min-height:100px;background:#ddd;">
-	  <!-- Loading Icon -->
-	  <svg class="dce-bg-loading"
-		style="display:none;position:absolute;left:0;top:0;right:0;bottom:0;margin:auto;width:40%;height:40%;fill:#aaa;animation:1s linear infinite dce-rotate;"
-		viewBox="0 0 1792 1792">
-		<path d="M1760 896q0 176-68.5 336t-184 275.5-275.5 184-336 68.5-336-68.5-275.5-184-184-275.5-68.5-336q0-213 97-398.5t265-305.5 374-151v228q-221 45-366.5 221t-145.5 406q0 130 51 248.5t136.5 204 204 136.5 248.5 51 248.5-51 204-136.5 136.5-204 51-248.5q0-230-145.5-406t-366.5-221v-228q206 31 374 151t265 305.5 97 398.5z" />
-	  </svg>
-	  <!-- Camera Icon -->
-	  <svg class="dce-bg-camera"
-		style="display:none;position:absolute;left:0;top:0;right:0;bottom:0;margin:auto;width:40%;height:40%;fill:#aaa;"
-		viewBox="0 0 2048 1792">
-		<path d="M1024 672q119 0 203.5 84.5t84.5 203.5-84.5 203.5-203.5 84.5-203.5-84.5-84.5-203.5 84.5-203.5 203.5-84.5zm704-416q106 0 181 75t75 181v896q0 106-75 181t-181 75h-1408q-106 0-181-75t-75-181v-896q0-106 75-181t181-75h224l51-136q19-49 69.5-84.5t103.5-35.5h512q53 0 103.5 35.5t69.5 84.5l51 136h224zm-704 1152q185 0 316.5-131.5t131.5-316.5-131.5-316.5-316.5-131.5-316.5 131.5-131.5 316.5 131.5 316.5 316.5 131.5z" />
-	  </svg>
-  
-	  <!-- Video Container -->
-	  <div class="dce-video-container" style="position:absolute;left:0;top:0;width:100%;height:100%;"></div>
-  
-	  <!-- Scanlight Region (optional) -->
-	  <div class="dce-scanarea" style="position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;">
-		<div class="dce-scanlight"
-			 style="display:none;position:absolute;width:100%;height:3%;border-radius:50%;box-shadow:0px 0px 2vw 1px #00e5ff;background:#fff;animation:3s infinite dce-scanlight;user-select:none;">
-		</div>
-	  </div>
-  
-	  <!-- Camera & Resolution Dropdowns -->
-	  <div style="position: absolute;left: 0;top: 0;">
-		<select class="dce-sel-camera" style="display: block;"></select>
-		<select class="dce-sel-resolution" style="display: block;margin-top: 5px;">
-		  <option class="dce-opt-gotResolution" value="got"></option>
-		  <option data-width="1920" data-height="1080">ask 1920x1080</option>
-		  <option data-width="1280" data-height="720">ask 1280x720</option>
-		  <option data-width="640" data-height="480">ask 640x480</option>
-		</select>
-	  </div>
-  
-	  <!--
-		REMOVED/COMMENTED OUT the watermark div:
-		<div class="dce-msg-poweredby" style="position:absolute;left:50%;bottom:10%;transform:translateX(-50%);pointer-events:none;">
-		  ... watermark SVG ...
-		</div>
-	  -->
-	</div>
-	<style>
-	  @keyframes dce-rotate {
-		from { transform: rotate(0turn); }
-		to { transform: rotate(1turn); }
-	  }
-	  @keyframes dce-scanlight {
-		from { top: 0; }
-		to { top: 97%; }
-	  }
-	</style>
-  </template>
-  
+  <div style="position:relative;width:100%;height:100%;min-width:100px;min-height:100px;background:#000;">
+    
+    <!-- Loading Icon -->
+    <svg class="dce-bg-loading"
+         style="display:none;position:absolute;left:0;top:0;right:0;bottom:0;margin:auto;width:40%;height:40%;fill:#aaa;animation:1s linear infinite dce-rotate;"
+         viewBox="0 0 1792 1792">
+      <path d="M1760 896q0 176-68.5 336t-184 275.5T1232 1692t-336 68.5T560 1692t-275.5-184T100.5 1232 32 896q0-213 97-398.5T394 192t374-151v228q-221 45-366.5 221T256 896q0 130 51 248.5t136.5 204T652 1485t248.5 51 248.5-51 204-136.5T1485 1144t51-248.5q0-230-145.5-406T1024 268V40q206 31 374 151t265 305.5 97 398.5z"/>
+    </svg>
+
+    <!-- Camera Icon (shown if camera is off/no device found) -->
+    <svg class="dce-bg-camera"
+         style="display:none;position:absolute;left:0;top:0;right:0;bottom:0;margin:auto;width:40%;height:40%;fill:#aaa;"
+         viewBox="0 0 2048 1792">
+      <path d="M1024 672q119 0 203.5 84.5T1312 960t-84.5 203.5T1024 1248t-203.5-84.5T736 960t84.5-203.5T1024 672zm704-416q106 0 181 75t75 181v896q0 106-75 181t-181 75H320q-106 0-181-75T64 1478V582q0-106 75-181t181-75h224l51-136q19-49 69.5-84.5T768 80h512q53 0 103.5 35.5T1453 200l51 136h224zm-704 1152q185 0 316.5-131.5T1472 960t-131.5-316.5T1024 512t-316.5 131.5T576 960t131.5 316.5T1024 1408z"/>
+    </svg>
+
+    <!-- Video Container -->
+    <div class="dce-video-container" style="position:absolute;left:0;top:0;width:100%;height:100%;">
+      <!-- The actual camera stream <video> is dynamically inserted here by DCE. -->
+    </div>
+
+    <!-- Scan Area Overlay & Animated Scan Line -->
+    <div class="dce-scanarea" style="position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;user-select:none;">
+      <div class="dce-scanlight"
+           style="display:none;position:absolute;width:100%;height:3%;border-radius:50%;box-shadow:0px 0px 2vw 1px #00e5ff;background:#fff;animation:3s infinite dce-scanlight;">
+      </div>
+    </div>
+
+    <!-- Mobile-Native-Like UI Container -->
+    <div class="dce-macro-use-mobile-native-like-ui" style="display:none;">
+      <!-- Torch/Flash -->
+      <div class="dce-mn-torch" title="torch">
+        <svg class="dce-mn-torch-auto" viewBox="0 0 512 512" fill="#fff">
+          <path d="M220,45 74.5,255 212.5,277.5 184,429 329.5,219 191.5,196.5Z"/>
+          <text x="250" y="480" font-size="256" font-family="Verdana">A</text>
+        </svg>
+        <svg class="dce-mn-torch-on" viewBox="0 0 512 512" fill="#fff">
+          <path d="M280,0 86,280 270,310 232,512 426,232 242,202Z"/>
+        </svg>
+        <svg class="dce-mn-torch-off" viewBox="0 0 512 512" fill="#fff">
+          <defs>
+            <mask id="dce-mn-torch-off-mask">
+              <rect width="512" height="512" fill="#fff"/>
+              <path d="M116,70 406,392 396,442 106,120Z" fill="#000"/>
+            </mask>
+          </defs>
+          <path d="M280,0 86,280 270,310 232,512 426,232 242,202Z" mask="url(#dce-mn-torch-off-mask)"/>
+          <path d="M118,85 408,407 394,427 104,105Z"/>
+        </svg>
+      </div>
+
+      <!-- Audio Beep -->
+      <div class="dce-mn-beep" title="beep">
+        <svg class="dce-mn-beep-on" viewBox="0 0 512 512" stroke="#fff" fill="#fff">
+          <path d="M140,148 50,148 50,364 140,364 226,482 226,30Z" />
+          <path d="M260,168A128,128,0,0,1,260,344" stroke-width="16" fill="transparent"/>
+          <path d="M310,118A192,192,0,0,1,310,394" stroke-width="16" fill="transparent"/>
+          <path d="M360,68A256,256,0,0,1,360,444" stroke-width="16" fill="transparent"/>
+        </svg>
+        <svg class="dce-mn-beep-off" viewBox="0 0 512 512" stroke="#fff" fill="#fff">
+          <path d="M140,148 50,148 50,364 140,364 226,482 226,30Z" />
+          <path d="M260,168 436,344" stroke-width="16"/>
+          <path d="M436,168 260,344" stroke-width="16"/>
+        </svg>
+      </div>
+
+      <!-- Vibrate -->
+      <div class="dce-mn-vibrate" title="vibrate" style="display:none;">
+        <svg class="dce-mn-vibrate-on" viewBox="0 0 512 512" stroke="#fff" fill="#fff">
+          <path d="M60,180 180,60 452,332 332,452Z" stroke-width="16" stroke-linejoin="round" fill="transparent"/>
+          <path d="M67,247 70,310 133,313 136,376 199,379 202,442 265,445" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" fill="transparent"/>
+          <path d="M27,287 30,350 93,353 96,416 159,419 162,482 225,485" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" fill="transparent"/>
+          <path d="M247,67 310,70 313,133 376,136 379,199 442,202 445,265" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" fill="transparent"/>
+          <path d="M287,27 350,30 353,93 416,96 419,159 482,162 485,225" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" fill="transparent"/>
+        </svg>
+        <svg class="dce-mn-vibrate-off" viewBox="0 0 512 512" stroke="#fff" fill="#fff">
+          <path d="M60,180 180,60 452,332 332,452Z" stroke-width="16" stroke-linejoin="round" fill="transparent"/>
+          <path d="M67,247 70,310 133,313 136,376 199,379 202,442 265,445" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" fill="transparent"/>
+          <path d="M27,287 30,350 93,353 96,416 159,419 162,482 225,485" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" fill="transparent"/>
+          <path d="M300,122 480,122" stroke-width="16" stroke-linecap="round"/>
+          <path d="M390,32 390,212" stroke-width="16" stroke-linecap="round"/>
+        </svg>
+      </div>
+
+      <!-- Resolution Display/Toggle -->
+      <div class="dce-mn-resolution-box" title="camera settings">720P</div>
+
+      <!-- Zoom Display (e.g. "1.0X") -->
+      <div class="dce-mn-zoom">- <span>1.0X</span> -</div>
+
+      <!-- Toast messages -->
+      <div class="dce-mn-toast"></div>
+
+      <!-- "Close" button for certain photo modes (not commonly used for scanning only) -->
+      <div class="dce-mn-camera-close" style="display:none;" title="close">
+        <svg viewBox="0 0 512 512" fill="#fff">
+          <defs>
+            <mask id="dce-mn-camera-close-mask">
+              <rect width="512" height="512" fill="#fff"/>
+              <path d="M128,128 384,384" stroke-width="60" stroke="#000"/>
+              <path d="M384,128 128,384" stroke-width="60" stroke="#000"/>
+            </mask>
+          </defs>
+          <circle cx="256" cy="256" r="256" mask="url(#dce-mn-camera-close-mask)"/>
+        </svg>
+      </div>
+
+      <!-- Large "Take Photo" circle (if you want camera capturing still images) -->
+      <div class="dce-mn-take-photo" style="display:none;" title="take photo"></div>
+
+      <!-- Camera Switch Icon -->
+      <div class="dce-mn-camera-switch" title="switch camera">
+        <svg viewBox="0 0 512 512" stroke="#fff" fill="#fff">
+          <defs>
+            <mask id="dce-mn-camera-switch-mask">
+              <rect width="512" height="512" fill="#fff"/>
+              <path d="M512,148 256,148" stroke-width="80" stroke="#000"/>
+              <path d="M0,364 256,364" stroke-width="80" stroke="#000"/>
+            </mask>
+          </defs>
+          <circle cx="256" cy="256" r="235" stroke-width="40" fill="transparent" mask="url(#dce-mn-camera-switch-mask)"/>
+          <path d="M450,108 300,108 400,70Z" stroke-width="0"/>
+          <path d="M62,404 212,404 112,442Z" stroke-width="0"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Optional: Camera & Resolution Dropdowns (traditional desktop style) -->
+    <div style="position:absolute;left:10px;top:10px;">
+      <select class="dce-sel-camera" style="display:block;margin-bottom:4px;">
+      </select>
+      <select class="dce-sel-resolution" style="display:block;">
+        <option class="dce-opt-gotResolution" value="got"></option>
+        <option data-width="1920" data-height="1080">1920x1080</option>
+        <option data-width="1280" data-height="720">1280x720</option>
+        <option data-width="640" data-height="480">640x480</option>
+      </select>
+    </div>
+
+  </div>
+
+  <!-- Custom Styles -->
+  <style>
+    /* Rotate animation for the "loading" icon */
+    @keyframes dce-rotate {
+      from { transform: rotate(0turn); }
+      to { transform: rotate(1turn); }
+    }
+    /* Vertical scanning animation */
+    @keyframes dce-scanlight {
+      0% { top: 0; }
+      100% { top: 97%; }
+    }
+
+    /* Mobile-inspired UI: container & icons */
+    .dce-macro-use-mobile-native-like-ui {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      font-family: Arial, Helvetica, sans-serif;
+      pointer-events: none; /* let clicks pass through, except where re-enabled */
+      user-select: none;
+    }
+
+    /* Torch Icon (flashlight) - top-left */
+    .dce-mn-torch {
+      position: absolute;
+      left: 12px;
+      top: 12px;
+      height: max(3vmin, 24px);
+      padding: max(0.5vmin, 4px);
+      box-sizing: border-box;
+      border-radius: max(1.5vmin, 12px);
+      background: rgba(100,100,100,0.5);
+      cursor: pointer;
+      pointer-events: initial; /* re-enable clicks on the icon container */
+    }
+
+    /* "Beep" icon - next to torch */
+    .dce-mn-beep {
+      position: absolute;
+      left: calc(48px + max(3vmin,24px));
+      top: 12px;
+      height: max(3vmin,24px);
+      padding: max(0.5vmin,4px);
+      box-sizing: border-box;
+      border-radius: max(1.5vmin,12px);
+      background: rgba(100,100,100,0.5);
+      cursor: pointer;
+      pointer-events: initial;
+    }
+
+    /* "Vibrate" icon - optional */
+    .dce-mn-vibrate {
+      position: absolute;
+      left: calc(84px + max(6vmin,48px));
+      top: 12px;
+      height: max(3vmin,24px);
+      padding: max(0.25vmin,2px);
+      box-sizing: border-box;
+      border-radius: max(1.5vmin,12px);
+      background: rgba(100,100,100,0.5);
+      cursor: pointer;
+      pointer-events: initial;
+    }
+
+    /* Resolution Box - top-right */
+    .dce-mn-resolution-box {
+      position: absolute;
+      right: 12px;
+      top: 12px;
+      width: max(5vmin,40px);
+      font-size: max(1.25vmin,10px);
+      line-height: max(2vmin,16px);
+      padding: max(0.5vmin,4px);
+      box-sizing: border-box;
+      text-align: center;
+      color: #fff;
+      border-radius: max(0.75vmin,6px);
+      background: rgba(100,100,100,0.5);
+      cursor: pointer;
+      pointer-events: initial;
+    }
+
+    /* Zoom indicator - center-bottom-ish */
+    .dce-mn-zoom {
+      position: absolute;
+      left: 50%;
+      bottom: max(12.5vmin,100px);
+      transform: translateX(-50%);
+      font-size: max(1vmin,8px);
+      line-height: max(3vmin,24px);
+      color: #fff;
+    }
+    .dce-mn-zoom span {
+      display: inline-block;
+      width: max(3vmin,24px);
+      border-radius: max(1.5vmin,12px);
+      text-align: center;
+      background: rgba(100,100,100,0.5);
+    }
+
+    /* Toast pop-up messages */
+    .dce-mn-toast {
+      position: absolute;
+      left: 50%;
+      bottom: max(12.5vmin,100px);
+      transform: translateX(-50%);
+      font-size: max(1.25vmin,10px);
+      line-height: max(3vmin,24px);
+      padding: 0 max(0.5vmin,4px);
+      color: #fff;
+      border-radius: max(0.5vmin,4px);
+      background: rgba(100,100,100,0.5);
+    }
+
+    /* "Close" camera button */
+    .dce-mn-camera-close > svg {
+      position: absolute;
+      left: 16px;
+      bottom: 32px;
+      height: max(4vmin,32px);
+      padding: max(0.5vmin,4px);
+      border-radius: max(2.5vmin,20px);
+      background: rgba(100,100,100,0.5);
+      cursor: pointer;
+      pointer-events: initial;
+    }
+
+    /* Large circle for taking photo (not typically needed for pure scanning) */
+    .dce-mn-take-photo {
+      position: absolute;
+      left: 50%;
+      bottom: max(4vmin,32px);
+      transform: translateX(-50%);
+      width: max(7vmin,56px);
+      height: max(7vmin,56px);
+      border: max(0.5vmin,4px) solid #fff;
+      border-radius: max(3.5vmin,28px);
+      box-sizing: border-box;
+      cursor: pointer;
+      pointer-events: initial;
+    }
+
+    /* Switch camera icon - bottom-right */
+    .dce-mn-camera-switch > svg {
+      position: absolute;
+      right: 16px;
+      bottom: 32px;
+      height: max(4vmin,32px);
+      padding: max(0.5vmin,4px);
+      border-radius: max(2.5vmin,20px);
+      background: rgba(100,100,100,0.5);
+      cursor: pointer;
+      pointer-events: initial;
+    }
+  </style>
+</template>
